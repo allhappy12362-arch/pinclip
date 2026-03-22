@@ -3169,11 +3169,10 @@ async function analyzeColorWithAI(){
           role:'user',
           content:[
             {type:'image', source:{type:'base64', media_type:mediaType, data:base64}},
-            {type:'text', text:`이 사람의 퍼스널컬러를 피부톤, 피부색, 눈동자, 머리카락 색상을 보고 분석해주세요.
-반드시 아래 16가지 타입 중 하나만 JSON으로 답하세요.
-가능한 타입: ${typeList}
-형식: {"type":"타입명"}
-설명 없이 JSON만 답하세요.`}
+            {type:'text', text:`Analyze the personal color type of the person in this image based on skin tone, eye color, and hair color. You must respond with ONLY a raw JSON object. No explanation, no markdown, no code blocks. Just the JSON.
+Available types: ${typeList}
+Format: {"type":"type-name"}
+Respond with exactly one JSON object and nothing else.`}
           ]
         }]
       })
@@ -3611,10 +3610,9 @@ async function analyzeWithAI(){
           role:'user',
           content:[
             {type:'image',source:{type:'base64',media_type:mediaType,data:base64}},
-            {type:'text',text:`이 사람의 얼굴형을 분석해주세요.
-반드시 아래 6가지 중 하나만 JSON으로 답하세요.
-{"type":"round"} 또는 {"type":"long"} 또는 {"type":"square"} 또는 {"type":"heart"} 또는 {"type":"diamond"} 또는 {"type":"oval"}
-설명 없이 JSON만 답하세요.`}
+            {type:'text',text:`Analyze the face shape in this image. You must respond with ONLY a JSON object, nothing else. No explanation, no markdown, no code blocks. Just the raw JSON.
+Choose exactly one from: {"type":"round"} or {"type":"long"} or {"type":"square"} or {"type":"heart"} or {"type":"diamond"} or {"type":"oval"}
+Response must be exactly one of those JSON objects and nothing else.`}
           ]
         }]
       })
