@@ -33,7 +33,11 @@ exports.handler = async function(event, context) {
 
     const geminiBody = {
       contents: [{ parts }],
-      generationConfig: { maxOutputTokens: 200, temperature: 0.1 }
+      generationConfig: {
+        maxOutputTokens: 50,
+        temperature: 0.0,
+        responseMimeType: "application/json"
+      }
     };
 
     const response = await fetch(
@@ -46,7 +50,10 @@ exports.handler = async function(event, context) {
     );
 
     const data = await response.json();
+    console.log('Gemini response:', JSON.stringify(data));
+    
     const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    console.log('Extracted text:', text);
 
     return {
       statusCode: 200,
@@ -55,6 +62,7 @@ exports.handler = async function(event, context) {
     };
 
   } catch(e) {
+    console.log('Error:', e.message);
     return {
       statusCode: 500,
       body: JSON.stringify({ error: e.message })
