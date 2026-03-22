@@ -34,7 +34,7 @@ exports.handler = async function(event, context) {
     const geminiBody = {
       contents: [{ parts }],
       generationConfig: {
-        maxOutputTokens: 50,
+        maxOutputTokens: 500,
         temperature: 0.0,
         
       }
