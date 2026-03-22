@@ -3,29 +3,57 @@ exports.handler = async function(event, context) {
     return { statusCode: 405, body: 'Method Not Allowed' };
   }
 
-  const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
-  if(!ANTHROPIC_API_KEY){
+  const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+  if(!GEMINI_API_KEY){
     return { statusCode: 500, body: JSON.stringify({ error: 'API 키가 설정되지 않았습니다.' }) };
   }
 
   try {
     const body = JSON.parse(event.body);
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify(body)
-    });
+    const messages = body.messages || [];
+    const userMsg = messages.find(m => m.role === 'user');
+    
+    let parts = [];
+    if(Array.isArray(userMsg?.content)){
+      userMsg.content.forEach(c => {
+        if(c.type === 'text'){
+          parts.push({ text: c.text });
+        } else if(c.type === 'image'){
+          parts.push({
+            inline_data: {
+              mime_type: c.source.media_type,
+              data: c.source.data
+            }
+          });
+        }
+      });
+    } else if(typeof userMsg?.content === 'string'){
+      parts.push({ text: userMsg.content });
+    }
+
+    const geminiBody = {
+      contents: [{ parts }],
+      generationConfig: { maxOutputTokens: 200, temperature: 0.1 }
+    };
+
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(geminiBody)
+      }
+    );
 
     const data = await response.json();
+    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
     return {
-      statusCode: response.status,
+      statusCode: 200,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
+      body: JSON.stringify({ content: [{ type: 'text', text }] })
     };
+
   } catch(e) {
     return {
       statusCode: 500,
