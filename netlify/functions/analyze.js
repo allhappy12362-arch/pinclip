@@ -36,7 +36,7 @@ exports.handler = async function(event, context) {
       generationConfig: {
         maxOutputTokens: 50,
         temperature: 0.0,
-        responseMimeType: "application/json"
+        
       }
     };
 
